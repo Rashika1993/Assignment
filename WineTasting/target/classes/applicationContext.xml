@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+    http://www.springframework.org/schema/aop 
+    http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+	<context:annotation-config/>
+	<!-- <aop:aspectj-autoproxy/> -->
+	<!-- properties file -->
+	<context:property-placeholder location="classpath:*.properties" />
+
+	<!-- database context -->
+	<!-- <import resource="classpath:dbcontext.xml" /> -->
+	<bean id="dataSourceForFetch" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.fetch.driver}" />
+		<property name="jdbcUrl" value="${jdbc.fetch.url}" />
+		<property name="user" value="${jdbc.fetch.user}" />
+		<property name="password" value="${jdbc.fetch.pwd}" />
+		<property name="initialPoolSize" value="1" />
+		<property name="minPoolSize" value="${jdbc.fetch.minPoolSize}" />
+		<property name="maxPoolSize" value="${jdbc.fetch.maxPoolSize}" />
+		<property name="checkoutTimeout" value="${jdbc.fetch.checkoutTimeout}" />
+		<property name="acquireIncrement" value="${jdbc.fetch.acquireIncrement}" />
+		<property name="maxIdleTime" value="${jdbc.fetch.maxIdleTime}" />
+		<property name="maxStatements" value="${jdbc.fetch.maxStatements}" />
+		<property name="idleConnectionTestPeriod" value="100" />
+		<property name="preferredTestQuery" value="select 1" />
+	</bean>
+
+	<bean id="dataSourceForUpdate" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.update.driver}" />
+		<property name="jdbcUrl" value="${jdbc.update.url}" />
+		<property name="user" value="${jdbc.update.user}" />
+		<property name="password" value="${jdbc.update.pwd}" />
+		<property name="initialPoolSize" value="${jdbc.update.initialPoolSize}" />
+		<property name="minPoolSize" value="${jdbc.update.minPoolSize}" />
+		<property name="maxPoolSize" value="${jdbc.update.maxPoolSize}" />
+		<property name="checkoutTimeout" value="${jdbc.update.checkoutTimeout}" />
+		<property name="acquireIncrement" value="${jdbc.update.acquireIncrement}" />
+		<property name="maxIdleTime" value="${jdbc.update.maxIdleTime}" />
+		<property name="maxStatements" value="${jdbc.update.maxStatements}" />
+		<property name="idleConnectionTestPeriod" value="100" />
+		<property name="preferredTestQuery" value="select 1" />
+	</bean>
+
+	<bean name="jdbcTemplateForFetch" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSourceForFetch"></property>
+	</bean>
+
+	<bean name="jdbcTemplateForUpdate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSourceForUpdate"></property>
+	</bean>
+	<!-- dao impl -->
+	
+	<bean id="wineTasteDaoImpl" class="winetasting.DaoImpl.WineTasteDaoImpl" >
+		<property name="fetchJdbcTemplate" ref="jdbcTemplateForFetch"></property>
+		<property name="updateJdbcTemplate" ref="jdbcTemplateForUpdate"></property>
+	</bean>
+	 <bean id="WineTaste" class="winetasting.main.WineTaste" >
+		<property name="wineTasteServiceImpl" ref="wineTasteServiceImpl"></property>
+			</bean>
+ 
+ 	<bean id="wineTasteServiceImpl" class="winetasting.ServiceImpl.WineTasteServiceImpl" >
+		<property name="wineTasteDaoImpl" ref="wineTasteDaoImpl"></property>
+	</bean>
+
+	<bean id="CoreDynamicPropertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="prototype">
+        <property name="location" value="classpath:application.properties" />
+    </bean>
+
+	
+
+
+	<!-- callbackLcm property bean -->
+<!-- 	<bean id="applicationProperties" class="net.one97.callbackLcm.configuration.Properties">
+	</bean> -->
+
+	<!-- client service access(e.g. callback-url) -->
+</beans>
